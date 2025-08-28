@@ -21,6 +21,16 @@ class Game {
             '🎃': 100
         };
 
+        this.growthTimes = {
+            '🌱': 5000,
+            '🥕': 8000,
+            '🌻': 15000,
+            '🌹': 25000,
+            '🍅': 35000,
+            '🌳': 50000,
+            '🎃': 60000
+        };
+
         this.weatherTypes = {
             sunny: { icon: '☀️', name: 'Солнечно', effect: 'growth_boost' },
             rainy: { icon: '🌧️', name: 'Дождливо', effect: 'auto_water' },
@@ -66,7 +76,7 @@ class Game {
         this.attachEventListeners();
         this.updateAllPlots();
         this.updateStats();
-        this.updateSprayerUI();
+        // this.updateSprayerUI(); // Pest system disabled
         this.updateGreenhouseUI();
         this.checkWarmButton();
         this.setMode('plant');
@@ -76,8 +86,45 @@ class Game {
         this.updateWeather(); // Initial weather
         setInterval(() => this.updateWeather(), 30000); // Update every 30 seconds for testing
 
-        // Start the pest check cycle
-        setInterval(() => this.checkForPests(), 5000); // Check every 5 seconds for testing
+        // Start the main game loop
+        setInterval(() => this.gameLoop(), 1000); // Runs every second
+    }
+
+    gameLoop() {
+        this.updateGrowth();
+        this.updateFruiting();
+        this.updateAllPlots(); // To update timers
+    }
+
+    updateGrowth() {
+        Object.keys(this.state.garden).forEach(plotId => {
+            const plant = this.state.garden[plotId];
+            if (plant && plant.growthFinishTime && Date.now() > plant.growthFinishTime) {
+                plant.stage++;
+                plant.watered = false;
+                plant.growthFinishTime = null;
+
+                // Check for fruiting stage
+                if (plant.stage === 2 && plant.hasGreenhouse && this.fruitingConfig.fruitingPlants.includes(plant.type)) {
+                    plant.isFruiting = true;
+                    plant.lastFruitedAt = Date.now();
+                }
+                this.saveState();
+            }
+        });
+    }
+
+    updateFruiting() {
+        Object.keys(this.state.garden).forEach(plotId => {
+            const plant = this.state.garden[plotId];
+            if (plant && plant.isFruiting && Date.now() - plant.lastFruitedAt > this.fruitingConfig.cycle) {
+                this.state.coins += this.fruitingConfig.value;
+                plant.lastFruitedAt = Date.now();
+                this.showAnimation(`+${this.fruitingConfig.value}💰`, this.gardenEl.querySelector(`[data-id='${plotId}']`), '#FFD700');
+                this.updateStats();
+                this.saveState();
+            }
+        });
     }
 
     checkForPests() {
@@ -91,15 +138,6 @@ class Game {
                     needsUpdate = true;
                 }
                 return;
-            }
-
-            // Generate income from fruiting plants
-            if (plant.isFruiting && Date.now() - plant.lastFruitedAt > this.fruitingConfig.cycle) {
-                this.state.coins += this.fruitingConfig.value;
-                plant.lastFruitedAt = Date.now();
-                this.showAnimation(`+${this.fruitingConfig.value}💰`, this.gardenEl.querySelector(`[data-id='${plotId}']`), '#FFD700');
-                this.updateStats();
-                this.saveState();
             }
 
             let pestChance = this.pestConfig.chance;
@@ -292,6 +330,7 @@ class Game {
             hasGreenhouse: false,
             isFruiting: false,
             lastFruitedAt: null,
+            growthFinishTime: null,
             plantedAt: Date.now()
         };
 
@@ -320,32 +359,16 @@ class Game {
         }
 
         plantData.watered = true;
+
+        let growthTime = this.growthTimes[plantData.type] || 3000;
+        if (plantData.hasGreenhouse) {
+            growthTime *= (1 - this.greenhouseConfig.growthBonus);
+        }
+        plantData.growthFinishTime = Date.now() + growthTime;
+
         this.showAnimation('💧', plotEl);
         this.updatePlot(plotId, plotEl); // Update visuals immediately
         this.saveState(); // Save watered state
-
-        let growthTime = 3000;
-        if (plantData.hasGreenhouse) {
-            growthTime *= (1 - this.greenhouseConfig.growthBonus); // e.g., 3000 * 0.9 = 2700ms
-        }
-
-        setTimeout(() => {
-            const currentPlantData = this.state.garden[plotId];
-            if (currentPlantData && !currentPlantData.isFrozen && !currentPlantData.isInfested && currentPlantData.stage < 2) {
-                currentPlantData.stage++;
-
-                // Check for fruiting stage
-                if (currentPlantData.stage === 2 && currentPlantData.hasGreenhouse && this.fruitingConfig.fruitingPlants.includes(currentPlantData.type)) {
-                    currentPlantData.isFruiting = true;
-                    currentPlantData.lastFruitedAt = Date.now();
-                }
-
-                currentPlantData.watered = false;
-                const currentPlotEl = this.gardenEl.querySelector(`[data-id='${plotId}']`);
-                this.updatePlot(plotId, currentPlotEl);
-                this.saveState(); // Save grown state
-            }
-        }, growthTime);
 
         this.showMessage('Растение полито! Оно скоро вырастет.', 'success');
     }
@@ -508,6 +531,12 @@ class Game {
         }
         if (plantData.hasGreenhouse) {
             plotEl.innerHTML += '<div style="position:absolute; top:0; left:0; right:0; bottom:0; border: 4px solid rgba(141, 110, 99, 0.5); border-radius: 12px; box-sizing: border-box;"></div>';
+        }
+
+        // Display growth timer
+        if (plantData.growthFinishTime && plantData.growthFinishTime > Date.now()) {
+            const remainingSeconds = Math.ceil((plantData.growthFinishTime - Date.now()) / 1000);
+            plotEl.innerHTML += `<div class="plot-timer">${remainingSeconds}s</div>`;
         }
 
         const growthIndicator = document.createElement('div');
