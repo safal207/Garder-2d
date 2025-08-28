@@ -1,0 +1,589 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+    min-height: 100vh;
+    padding: 10px;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #2d5a27;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+
+    .container {
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+}
+
+/* Горизонтальная ориентация телефона */
+@media (max-width: 896px) and (max-height: 414px) and (orientation: landscape) {
+    body {
+        padding: 5px;
+    }
+
+    .container {
+        padding: 8px;
+        max-height: 95vh;
+        overflow-y: auto;
+    }
+
+    h1 {
+        font-size: 1.3em;
+        margin-bottom: 8px;
+    }
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    background: #f0f8e8;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.stat {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2d5a27;
+}
+
+.stat div:last-child {
+    font-size: 0.8em;
+    margin-top: 2px;
+}
+
+/* Мобильная адаптация статистики */
+@media (max-width: 768px) {
+    .stats {
+        padding: 8px;
+        margin-bottom: 12px;
+    }
+
+    .stat-value {
+        font-size: 1.1em;
+    }
+
+    .stat div:last-child {
+        font-size: 0.7em;
+    }
+}
+
+/* Горизонтальная ориентация */
+@media (max-width: 896px) and (max-height: 414px) and (orientation: landscape) {
+    .stats {
+        padding: 6px;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 1em;
+    }
+
+    .stat div:last-child {
+        font-size: 0.65em;
+    }
+}
+
+    .weather-display {
+        text-align: center;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.7);
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #333;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+.garden-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #8B4513;
+    border-radius: 12px;
+    justify-items: center;
+}
+
+.plot {
+    width: 60px;
+    height: 60px;
+    background: #D2B48C;
+    border: 2px solid #A0522D;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    touch-action: manipulation;
+}
+
+.plot:hover, .plot:active {
+    transform: scale(1.05);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Мобильная адаптация сада */
+@media (max-width: 768px) {
+    .garden-grid {
+        gap: 6px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .plot {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* Горизонтальная ориентация - компактный сад */
+@media (max-width: 896px) and (max-height: 414px) and (orientation: landscape) {
+    .garden-grid {
+        gap: 4px;
+        padding: 8px;
+        margin-bottom: 8px;
+        max-width: 350px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .plot {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+    }
+}
+
+.plant {
+    font-size: 1.8em;
+    animation: grow 0.5s ease-out;
+}
+
+/* Мобильная адаптация растений */
+@media (max-width: 768px) {
+    .plant {
+        font-size: 1.5em;
+    }
+}
+
+@media (max-width: 896px) and (max-height: 414px) and (orientation: landscape) {
+    .plant {
+        font-size: 1.2em;
+    }
+}
+
+@keyframes grow {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    touch-action: manipulation;
+    min-width: 100px;
+}
+
+/* Мобильная адаптация кнопок */
+@media (max-width: 768px) {
+    .controls {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 0.8em;
+        min-width: 85px;
+    }
+}
+
+/* Горизонтальная ориентация */
+@media (max-width: 896px) and (max-height: 414px) and (orientation: landscape) {
+    .controls {
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        font-size: 0.75em;
+        min-width: 70px;
+        border-radius: 15px;
+    }
+}
+
+.btn-plant {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-plant:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+}
+
+.btn-harvest {
+    background: #FF9800;
+    color: white;
+}
+
+.btn-harvest:hover {
+    background: #e68900;
+    transform: translateY(-2px);
+}
+
+.btn-water {
+    background: #2196F3;
+    color: white;
+}
+
+.btn-water:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+}
+
+        .btn-warm {
+            background: #FFC107;
+            color: white;
+        }
+
+        .btn-warm:hover {
+            background: #FFA000;
+            transform: translateY(-2px);
+        }
+
+        .btn-spray {
+            background: #9C27B0;
+            color: white;
+        }
+
+        .btn-spray:hover {
+            background: #7B1FA2;
+            transform: translateY(-2px);
+        }
+
+        .btn-greenhouse {
+            background: #8D6E63;
+            color: white;
+        }
+
+        .btn-greenhouse:hover {
+            background: #6D4C41;
+            transform: translateY(-2px);
+        }
+
+        .shop-upgrades {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .shop-item {
+            padding: 8px 12px;
+            background: #fff;
+            border: 2px solid #9C27B0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8em;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .shop-item:hover {
+            background: #9C27B0;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .shop-item.owned {
+            background: #E0E0E0;
+            color: #9E9E9E;
+            cursor: not-allowed;
+            border-color: #E0E0E0;
+        }
+
+.seed-shop {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 15px;
+}
+
+.seed-shop h3 {
+    text-align: center;
+    color: #2d5a27;
+    margin-bottom: 12px;
+    font-size: 1.1em;
+}
+
+.seeds {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.seed {
+    padding: 8px 12px;
+    background: #fff;
+    border: 2px solid #4CAF50;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    touch-action: manipulation;
+    font-size: 0.8em;
+    text-align: center;
+}
+
+.seed:hover, .seed.selected, .seed:active {
+    background: #4CAF50;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Мобильная адаптация магазина семян */
+@media (max-width: 768px) {
+    .seed-shop {
+        padding: 12px;
+        margin-top: 12px;
+    }
+
+    .seed-shop h3 {
+        font-size: 1em;
+        margin-bottom: 10px;
+    }
+
+    .seeds {
+        gap: 8px;
+    }
+
+    .seed {
+        padding: 6px 10px;
+        font-size: 0.75em;
+        border-radius: 12px;
+    }
+}
+
+/* Горизонтальная ориентация */
+@media (max-width: 896px) and (max-height: 414px) and (orientation: landscape) {
+    .seed-shop {
+        padding: 8px;
+        margin-top: 8px;
+    }
+
+    .seed-shop h3 {
+        font-size: 0.9em;
+        margin-bottom: 6px;
+    }
+
+    .seeds {
+        gap: 6px;
+    }
+
+    .seed {
+        padding: 4px 8px;
+        font-size: 0.7em;
+        border-radius: 10px;
+    }
+}
+
+.message {
+    text-align: center;
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.info {
+    background: #e7f3ff;
+    color: #31708f;
+    border: 1px solid #b8daff;
+}
+
+/* Мобильная адаптация сообщений */
+@media (max-width: 768px) {
+    .message {
+        margin: 12px 0;
+        padding: 8px;
+        min-height: 35px;
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 896px) and (max-height: 414px) and (orientation: landscape) {
+    .message {
+        margin: 8px 0;
+        padding: 6px;
+        min-height: 30px;
+        font-size: 0.75em;
+    }
+}
+
+.growth-indicator {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    right: 2px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.growth-progress {
+    height: 100%;
+    transition: width 0.5s ease, background-color 0.3s ease;
+    border-radius: 3px;
+}
+
+.growth-progress.stage-0 {
+    width: 33%;
+    background: #ff6b6b;
+}
+
+.growth-progress.stage-1 {
+    width: 66%;
+    background: #ffd93d;
+}
+
+.growth-progress.stage-2 {
+    width: 100%;
+    background: #6bcf7f;
+}
+
+.watering-animation {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1em;
+    animation: waterDrop 2s ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes waterDrop {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    20% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0px);
+    }
+    80% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(5px);
+    }
+}
+
+.ready-to-harvest {
+    animation: readyPulse 2s ease-in-out infinite;
+}
+
+@keyframes readyPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(76, 175, 80, 0);
+    }
+}
+
+/* Мобильная адаптация индикаторов */
+@media (max-width: 768px) {
+    .growth-indicator {
+        height: 5px;
+        bottom: 1px;
+    }
+
+    .watering-animation {
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 896px) and (max-height: 414px) and (orientation: landscape) {
+    .growth-indicator {
+        height: 4px;
+        bottom: 1px;
+    }
+
+    .watering-animation {
+        font-size: 0.8em;
+    }
+}
