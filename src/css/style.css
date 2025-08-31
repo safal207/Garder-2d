@@ -254,6 +254,22 @@ h1 {
     min-width: 100px;
 }
 
+.btn.danger {
+    background: #ff5a5a;
+    color: #fff;
+}
+
+.btn:active, .btn.active {
+    outline: 3px solid #1c4b1a;
+    transform: translateY(1px);
+}
+
+.plot.diggable {
+    box-shadow: inset 0 0 10px 2px rgba(255, 90, 90, 0.7);
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>⛏️</text></svg>") 16 0, auto;
+}
+
+
 /* Мобильная адаптация кнопок */
 @media (max-width: 768px) {
     .controls {

@@ -22,13 +22,13 @@ class Game {
         };
 
         this.growthTimes = {
-            '🌱': 5000,
-            '🥕': 8000,
-            '🌻': 15000,
-            '🌹': 25000,
-            '🍅': 35000,
-            '🌳': 50000,
-            '🎃': 60000
+            '🌱': 3000,
+            '🥕': 5000,
+            '🌻': 8000,
+            '🌹': 12000,
+            '🍅': 18000,
+            '🌳': 25000,
+            '🎃': 30000
         };
 
         this.weatherTypes = {
@@ -78,13 +78,13 @@ class Game {
         this.updateStats();
         // this.updateSprayerUI(); // Pest system disabled
         this.updateGreenhouseUI();
-        this.checkWarmButton();
+        // this.checkWarmButton(); // Weather system disabled
         this.setMode('plant');
         this.showMessage('Добро пожаловать в сад! Выберите семена и начните сажать.', 'info');
 
         // Start the weather cycle
-        this.updateWeather(); // Initial weather
-        setInterval(() => this.updateWeather(), 30000); // Update every 30 seconds for testing
+        // this.updateWeather(); // Weather system disabled
+        // setInterval(() => this.updateWeather(), 30000); // Weather system disabled
 
         // Start the main game loop
         setInterval(() => this.gameLoop(), 1000); // Runs every second
@@ -197,21 +197,32 @@ class Game {
         const savedState = localStorage.getItem('growAGardenState');
         if (savedState) {
             this.state = JSON.parse(savedState);
+
+            // Migration: remove old weather keys from save
+            if (this.state.weather) delete this.state.weather;
+            if (this.state.lastWeatherUpdate) delete this.state.lastWeatherUpdate;
+
         } else {
-            // Default state if nothing is saved
-            this.state = {
-                coins: 50,
-                plants: 0,
-                harvested: 0,
-                mode: 'plant',
-                selectedSeed: { emoji: '🌱', cost: 5 },
-                garden: {},
-                weather: 'sunny', // Default weather
-                lastWeatherUpdate: Date.now(),
-                hasSprayer: false,
-                greenhouseInventory: 0
-            };
+            this.state = this.getInitialState();
         }
+    }
+
+    getInitialState() {
+        return {
+            coins: 50,
+            plants: 0,
+            harvested: 0,
+            mode: 'plant',
+            selectedSeed: { emoji: '🌱', cost: 5 },
+            garden: {},
+            hasSprayer: false,
+            greenhouseInventory: 0
+        };
+    }
+
+    resetGame() {
+        localStorage.removeItem('growAGardenState');
+        location.reload();
     }
 
     initGarden() {
@@ -229,6 +240,7 @@ class Game {
         document.querySelector('.btn-plant').addEventListener('click', () => this.setMode('plant'));
         document.querySelector('.btn-water').addEventListener('click', () => this.setMode('water'));
         document.querySelector('.btn-harvest').addEventListener('click', () => this.setMode('harvest'));
+        document.querySelector('.btn-dig').addEventListener('click', () => this.setMode('dig'));
         document.querySelector('.btn-warm').addEventListener('click', () => this.setMode('warm'));
         this.sprayBtn.addEventListener('click', () => this.setMode('spray'));
         this.greenhouseBtn.addEventListener('click', () => this.setMode('build'));
@@ -236,6 +248,11 @@ class Game {
         // Shop items
         this.buySprayerBtn.addEventListener('click', () => this.buySprayer());
         this.buyGreenhouseBtn.addEventListener('click', () => this.buyGreenhouse());
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            if (confirm('Сбросить прогресс? Это действие нельзя отменить.')) {
+                this.resetGame();
+            }
+        });
 
         // Seed selection
         document.querySelectorAll('.seed').forEach(seedEl => {
@@ -265,9 +282,11 @@ class Game {
             water: 'Полив',
             harvest: 'Сбор',
             warm: 'Согревание',
-            spray: 'Опрыскивание'
+            spray: 'Опрыскивание',
+            dig: 'Выкопать'
         };
         this.showMessage(`Режим: ${modeText[mode] || mode}`, 'info');
+        this.updatePlotHints();
         this.saveState();
     }
 
@@ -304,7 +323,24 @@ class Game {
             case 'build':
                 this.buildGreenhouse(plotId, plotEl, plantData);
                 break;
+            case 'dig':
+                this.digUpPlant(plotId, plotEl, plantData);
+                break;
         }
+    }
+
+    digUpPlant(plotId, plotEl, plantData) {
+        if (!plantData) {
+            this.showMessage('Здесь нечего выкапывать.', 'info');
+            return;
+        }
+        delete this.state.garden[plotId];
+        this.state.plants--;
+        this.updatePlot(plotId, plotEl);
+        this.updateStats();
+        this.updatePlotHints(); // To remove the hint from the now-empty plot
+        this.saveState();
+        this.showMessage('Вы очистили грядку.', 'success');
     }
 
     plantSeed(plotId, plotEl) {
@@ -565,6 +601,19 @@ class Game {
         const warmButton = document.querySelector('.btn-warm');
         const hasFrozenPlant = Object.values(this.state.garden).some(p => p.isFrozen);
         warmButton.style.display = hasFrozenPlant ? 'inline-block' : 'none';
+    }
+
+    updatePlotHints() {
+        const isDigMode = this.state.mode === 'dig';
+        this.gardenEl.querySelectorAll('.plot').forEach(plotEl => {
+            const plotId = plotEl.dataset.id;
+            const hasPlant = this.state.garden[plotId];
+            if (isDigMode && hasPlant) {
+                plotEl.classList.add('diggable');
+            } else {
+                plotEl.classList.remove('diggable');
+            }
+        });
     }
 
     updateSprayerUI() {
