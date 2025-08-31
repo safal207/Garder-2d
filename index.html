@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grow a Garden</title>
+    <link rel="stylesheet" href="src/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 Grow a Garden</h1>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="coins">50</div>
+                <div>Монеты</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="plants">0</div>
+                <div>Растения</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="harvested">0</div>
+                <div>Собрано</div>
+            </div>
+        </div>
+
+        <div class="weather-display" id="weather-display" style="display: none;">
+            <!-- Weather will be injected here by JS -->
+        </div>
+
+        <div class="controls">
+            <button id="btn-reset" class="btn danger">Начать заново</button>
+            <button class="btn btn-plant">🌱 Посадить</button>
+            <button class="btn btn-water">💧 Полить</button>
+            <button class="btn btn-harvest">🌾 Собрать</button>
+            <button class="btn btn-dig">⛏️ Выкопать</button>
+            <button class="btn btn-warm" style="display: none;">☀️ Согреть</button>
+            <button class="btn btn-spray" style="display: none;">🕷️ Опрыскать</button>
+            <button class="btn btn-greenhouse" style="display: none;">🏡 Построить</button>
+        </div>
+
+        <div class="garden-grid" id="garden"></div>
+
+        <div class="message" id="message"></div>
+
+        <div class="seed-shop">
+            <h3>🌱 Магазин</h3>
+            <div class="seeds">
+                <div class="seed selected" data-seed="🌱">
+                    🌱 Трава (5 монет)
+                </div>
+                <div class="seed" data-seed="🌻">
+                    🌻 Подсолнух (10 монет)
+                </div>
+                <div class="seed" data-seed="🌹">
+                    🌹 Роза (15 монет)
+                </div>
+                <div class="seed" data-seed="🥕">
+                    🥕 Морковь (8 монет)
+                </div>
+                <div class="seed" data-seed="🍅">
+                    🍅 Помидор (15 монет)
+                </div>
+                <div class="seed" data-seed="🌳">
+                    🌳 Дерево (25 монет)
+                </div>
+                <div class="seed" data-seed="🎃">
+                    🎃 Тыква (50 монет)
+                </div>
+            </div>
+            <div class="shop-upgrades">
+                <div class="shop-item" id="buy-sprayer" style="display: none;">
+                    Опрыскиватель (100 монет)
+                </div>
+                <div class="shop-item" id="buy-greenhouse">
+                    Мини-теплица (50 монет)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/js/main.js"></script>
+</body>
+</html>
