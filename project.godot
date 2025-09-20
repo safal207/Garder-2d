@@ -1,0 +1,12 @@
+; Engine configuration file.
+; This file was hand-edited due to the Godot editor being unavailable in the environment.
+
+config_version=5
+
+[application]
+config/name="Garder-2d"
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.0")
+
+[rendering]
+renderer/rendering_method="forward_plus"
