@@ -1,42 +1,6 @@
 class Game {
     constructor() {
         this.state = {}; // State will be loaded or initialized
-        this.plantGrowthStages = {
-            '🌱': ['🌱', '🌿', '🍃'],
-            '🥕': ['🌱', '🌿', '🥕'],
-            '🌻': ['🌱', '🌿', '🌻'],
-            '🌹': ['🌱', '🌿', '🌹'],
-            '🍅': ['🌱', '🌿', '🍅'],
-            '🌳': ['🌱', '🌿', '🌳'],
-            '🎃': ['🌱', '🌿', '🎃']
-        };
-
-        this.harvestValues = {
-            '🌱': 8,
-            '🥕': 12,
-            '🌻': 20,
-            '🌹': 30,
-            '🍅': 40,
-            '🌳': 50,
-            '🎃': 100
-        };
-
-        this.growthTimes = {
-            '🌱': 3000,
-            '🥕': 5000,
-            '🌻': 8000,
-            '🌹': 12000,
-            '🍅': 18000,
-            '🌳': 25000,
-            '🎃': 30000
-        };
-
-        this.weatherTypes = {
-            sunny: { icon: '☀️', name: 'Солнечно', effect: 'growth_boost' },
-            rainy: { icon: '🌧️', name: 'Дождливо', effect: 'auto_water' },
-            foggy: { icon: '🌫️', name: 'Туманно', effect: 'slow_growth' },
-            frosty: { icon: '❄️', name: 'Заморозки', effect: 'freeze_chance' }
-        };
 
         // DOM Elements
         this.coinsEl = document.getElementById('coins');
@@ -50,22 +14,12 @@ class Game {
         this.buyGreenhouseBtn = document.getElementById('buy-greenhouse');
         this.greenhouseBtn = document.querySelector('.btn-greenhouse');
 
-        this.pestConfig = {
-            icon: '🐞',
-            chance: 0.01, // Base chance per check
-            deathTimer: 30000, // 30 seconds for testing
-        };
+        // Level UI
+        this.levelEl = document.getElementById('level');
+        this.xpEl = document.getElementById('xp');
+        this.xpNeededEl = document.getElementById('xp-needed');
+        this.xpProgressEl = document.getElementById('xp-progress');
 
-        this.greenhouseConfig = {
-            cost: 50,
-            growthBonus: 0.1,
-        };
-
-        this.fruitingConfig = {
-            fruitingPlants: ['🌳', '🍅'], // Plants that can bear fruit
-            value: 5, // Coins per cycle
-            cycle: 10000 // 10 seconds for testing
-        };
 
         this.init();
     }
@@ -76,6 +30,8 @@ class Game {
         this.attachEventListeners();
         this.updateAllPlots();
         this.updateStats();
+        this.updateLevelUI();
+        this.updateShop();
         // this.updateSprayerUI(); // Pest system disabled
         this.updateGreenhouseUI();
         // this.checkWarmButton(); // Weather system disabled
@@ -105,7 +61,7 @@ class Game {
                 plant.growthFinishTime = null;
 
                 // Check for fruiting stage
-                if (plant.stage === 2 && plant.hasGreenhouse && this.fruitingConfig.fruitingPlants.includes(plant.type)) {
+                if (plant.stage === 2 && plant.hasGreenhouse && config.fruitingConfig.fruitingPlants.includes(plant.type)) {
                     plant.isFruiting = true;
                     plant.lastFruitedAt = Date.now();
                 }
@@ -117,10 +73,10 @@ class Game {
     updateFruiting() {
         Object.keys(this.state.garden).forEach(plotId => {
             const plant = this.state.garden[plotId];
-            if (plant && plant.isFruiting && Date.now() - plant.lastFruitedAt > this.fruitingConfig.cycle) {
-                this.state.coins += this.fruitingConfig.value;
+            if (plant && plant.isFruiting && Date.now() - plant.lastFruitedAt > config.fruitingConfig.cycle) {
+                this.state.coins += config.fruitingConfig.value;
                 plant.lastFruitedAt = Date.now();
-                this.showAnimation(`+${this.fruitingConfig.value}💰`, this.gardenEl.querySelector(`[data-id='${plotId}']`), '#FFD700');
+                this.showAnimation(`+${config.fruitingConfig.value}💰`, this.gardenEl.querySelector(`[data-id='${plotId}']`), '#FFD700');
                 this.updateStats();
                 this.saveState();
             }
@@ -133,14 +89,14 @@ class Game {
             const plant = this.state.garden[plotId];
             if (!plant || plant.isInfested) {
                 // If plant is already infested, check if it should die
-                if (plant && plant.infestedAt && Date.now() - plant.infestedAt > this.pestConfig.deathTimer) {
+                if (plant && plant.infestedAt && Date.now() - plant.infestedAt > config.pestConfig.deathTimer) {
                     delete this.state.garden[plotId];
                     needsUpdate = true;
                 }
                 return;
             }
 
-            let pestChance = this.pestConfig.chance;
+            let pestChance = config.pestConfig.chance;
             if (this.state.weather === 'foggy') {
                 pestChance *= 2; // Double chance in fog
             }
@@ -161,10 +117,10 @@ class Game {
     }
 
     updateWeather() {
-        const weatherKeys = Object.keys(this.weatherTypes);
+        const weatherKeys = Object.keys(config.weatherTypes);
         const newWeatherKey = weatherKeys[Math.floor(Math.random() * weatherKeys.length)];
         this.state.weather = newWeatherKey;
-        const weather = this.weatherTypes[newWeatherKey];
+        const weather = config.weatherTypes[newWeatherKey];
 
         this.weatherDisplayEl.innerHTML = `${weather.icon} ${weather.name}`;
         this.showMessage(`Погода изменилась: ${weather.name}`, 'info');
@@ -196,12 +152,17 @@ class Game {
     loadState() {
         const savedState = localStorage.getItem('growAGardenState');
         if (savedState) {
-            this.state = JSON.parse(savedState);
+            try {
+                this.state = JSON.parse(savedState);
 
-            // Migration: remove old weather keys from save
-            if (this.state.weather) delete this.state.weather;
-            if (this.state.lastWeatherUpdate) delete this.state.lastWeatherUpdate;
+                // Migration: remove old weather keys from save
+                if (this.state.weather) delete this.state.weather;
+                if (this.state.lastWeatherUpdate) delete this.state.lastWeatherUpdate;
 
+            } catch (error) {
+                console.error("Failed to parse saved state, resetting game.", error);
+                this.state = this.getInitialState();
+            }
         } else {
             this.state = this.getInitialState();
         }
@@ -212,6 +173,8 @@ class Game {
             coins: 50,
             plants: 0,
             harvested: 0,
+            level: 1,
+            xp: 0,
             mode: 'plant',
             selectedSeed: { emoji: '🌱', cost: 5 },
             garden: {},
@@ -396,9 +359,9 @@ class Game {
 
         plantData.watered = true;
 
-        let growthTime = this.growthTimes[plantData.type] || 3000;
+        let growthTime = config.growthTimes[plantData.type] || 3000;
         if (plantData.hasGreenhouse) {
-            growthTime *= (1 - this.greenhouseConfig.growthBonus);
+            growthTime *= (1 - config.greenhouseConfig.growthBonus);
         }
         plantData.growthFinishTime = Date.now() + growthTime;
 
@@ -441,7 +404,7 @@ class Game {
     }
 
     buyGreenhouse() {
-        const cost = this.greenhouseConfig.cost;
+        const cost = config.greenhouseConfig.cost;
         if (this.state.coins < cost) {
             this.showMessage('Недостаточно монет!', 'info');
             return;
@@ -513,10 +476,12 @@ class Game {
             return;
         }
 
-        const value = this.harvestValues[plantData.type];
+        const value = config.harvestValues[plantData.type];
         this.state.coins += value;
         this.state.harvested++;
         this.state.plants--;
+
+        this.addXp(config.levelConfig.xpPerHarvest);
 
         this.showAnimation(`+${value}💰`, plotEl, '#FFD700');
 
@@ -554,7 +519,7 @@ class Game {
             return;
         }
 
-        const stages = this.plantGrowthStages[plantData.type];
+        const stages = config.plantGrowthStages[plantData.type];
         const currentStageEmoji = stages[plantData.stage];
 
         plotEl.innerHTML = `<div class="plant">${currentStageEmoji}</div>`;
@@ -563,7 +528,7 @@ class Game {
             plotEl.innerHTML += '<div style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(173, 216, 230, 0.5); border-radius: 8px;"></div>';
         }
         if (plantData.isInfested) {
-            plotEl.innerHTML += `<div style="position:absolute; top: -10px; right: -5px; font-size: 1.5em;">${this.pestConfig.icon}</div>`;
+            plotEl.innerHTML += `<div style="position:absolute; top: -10px; right: -5px; font-size: 1.5em;">${config.pestConfig.icon}</div>`;
         }
         if (plantData.hasGreenhouse) {
             plotEl.innerHTML += '<div style="position:absolute; top:0; left:0; right:0; bottom:0; border: 4px solid rgba(141, 110, 99, 0.5); border-radius: 12px; box-sizing: border-box;"></div>';
@@ -639,6 +604,66 @@ class Game {
         this.coinsEl.textContent = this.state.coins;
         this.plantsEl.textContent = this.state.plants;
         this.harvestedEl.textContent = this.state.harvested;
+    }
+
+    addXp(amount) {
+        this.state.xp += amount;
+        this.checkForLevelUp();
+        this.updateLevelUI();
+    }
+
+    checkForLevelUp() {
+        const currentLevel = this.state.level;
+        const nextLevelInfo = config.levelConfig.levels[currentLevel]; // next level is current level index
+
+        if (!nextLevelInfo) return; // Max level reached
+
+        if (this.state.xp >= nextLevelInfo.xpNeeded) {
+            this.state.level++;
+            // Don't reset XP, let it accumulate. Or reset it: this.state.xp -= nextLevelInfo.xpNeeded;
+            this.showMessage(`Поздравляем! Вы достигли ${this.state.level} уровня!`, 'success');
+            this.updateShop();
+        }
+    }
+
+    updateLevelUI() {
+        const currentLevel = this.state.level;
+        const levelIndex = currentLevel - 1;
+
+        this.levelEl.textContent = currentLevel;
+
+        const xpForCurrentLevel = config.levelConfig.levels[levelIndex]?.xpNeeded ?? this.state.xp;
+        const xpForNextLevel = config.levelConfig.levels[levelIndex + 1]?.xpNeeded;
+
+        if (xpForNextLevel) {
+            this.xpEl.textContent = this.state.xp;
+            this.xpNeededEl.textContent = xpForNextLevel;
+            const progress = (this.state.xp - xpForCurrentLevel) / (xpForNextLevel - xpForCurrentLevel) * 100;
+            this.xpProgressEl.style.width = `${progress}%`;
+        } else {
+            // Max level
+            this.xpEl.textContent = this.state.xp;
+            this.xpNeededEl.textContent = 'МАКС';
+            this.xpProgressEl.style.width = '100%';
+        }
+    }
+
+    updateShop() {
+        const currentLevel = this.state.level;
+        const unlockedSeeds = new Set();
+
+        for (let i = 0; i < currentLevel; i++) {
+            config.levelConfig.levels[i].unlocks.forEach(seed => unlockedSeeds.add(seed));
+        }
+
+        document.querySelectorAll('.seed').forEach(seedEl => {
+            const seedEmoji = seedEl.dataset.seed;
+            if (unlockedSeeds.has(seedEmoji)) {
+                seedEl.style.display = 'inline-block';
+            } else {
+                seedEl.style.display = 'none';
+            }
+        });
     }
 
     showMessage(text, type = 'info') {
