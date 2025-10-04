@@ -1,0 +1,15 @@
+# Godot editor generated directories
+.import/
+.godot/
+mono/
+
+# Exported builds
+bin/
+export/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
