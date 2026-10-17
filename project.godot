@@ -1,12 +1,17 @@
-; Engine configuration file.
-; This file was hand-edited due to the Godot editor being unavailable in the environment.
-
+; Godot 4.2 playable prototype configuration.
 config_version=5
 
 [application]
-config/name="Garder-2d"
+config/name="Garder — The Last Garden"
 run/main_scene="res://scenes/Main.tscn"
-config/features=PackedStringArray("4.0")
+config/features=PackedStringArray("4.2", "GL Compatibility")
+
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
 
 [rendering]
-renderer/rendering_method="forward_plus"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
